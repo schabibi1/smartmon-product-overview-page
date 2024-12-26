@@ -1,7 +1,7 @@
-import { LitElement, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import litLogo from './assets/lit.svg'
-import viteLogo from '/vite.svg'
+import { LitElement, css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { Task } from '@lit/task';
+import bulbsaurImg from './assets/bulbsaur.png';
 
 /**
  * An example element.
@@ -11,40 +11,73 @@ import viteLogo from '/vite.svg'
  */
 @customElement('my-element')
 export class MyElement extends LitElement {
+  // Might need it for fetching each pokemon's type
+  // @property({ type: Number })
+  // pokemonId = 0;
+
   /**
-   * Copy for the read the docs hint.
+   * The top headline of the overview page component.
    */
-  @property()
-  docsHint = 'Click on the Vite and Lit logos to learn more'
+  @property({ type: String })
+  headline = 'These are our products';
 
   /**
    * The number of times the button has been clicked.
    */
   @property({ type: Number })
-  count = 0
+  count = 0;
+
+  
+  private _pokemonTask = new Task(this, {
+    task: async () => {
+      const getAllPokemons = 'https://pokeapi.co/api/v2/pokemon?limit=10&offset=0';
+      const response = await fetch(getAllPokemons);
+      console.log(response);
+      return response.json();
+    },
+    args: () => []
+  });
+  
+  // // Might be useful for filter feature
+  // private _onClick() {
+  //   const pokemonTask = this._pokemonTask;
+  //   const name = pokemonTask._value.results.map((result) => result.name);
+  //   const url = pokemonTask._value.results.map((result) => result.url);
+
+  //   console.log(pokemonTask);
+  //   console.log(name);
+  //   console.log(url);
+
+  //   pokemonTask.run();
+  // }
 
   render() {
     return html`
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src=${viteLogo} class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://lit.dev" target="_blank">
-          <img src=${litLogo} class="logo lit" alt="Lit logo" />
-        </a>
+        <h1>${this.headline}</h1>
+        <!-- TODO: Add filter sidebar component -->
+        <div class="pokemon-list">
+          <ul>
+            ${this._pokemonTask._value.results.map((result) => {
+              return html`
+                <a href=${result.url} target="_blank">
+                  <img src=${bulbsaurImg} class="logo" alt="monster image" />
+                  <li>
+                    <p>${result.name}</p>
+                  </li>
+                </a>
+              `
+            })}
+          </ul>
+        </div>
       </div>
       <slot></slot>
-      <div class="card">
+      <!-- <div class="card">
         <button @click=${this._onClick} part="button">
-          count is ${this.count}
+          Pokemon list
         </button>
-      </div>
-      <p class="read-the-docs">${this.docsHint}</p>
+      </div> -->
     `
-  }
-
-  private _onClick() {
-    this.count++
   }
 
   static styles = css`
