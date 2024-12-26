@@ -11,9 +11,11 @@ import bulbsaurImg from './assets/bulbsaur.png';
  */
 @customElement('my-element')
 export class MyElement extends LitElement {
-  // Might need it for fetching each pokemon's type
-  // @property({ type: Number })
-  // pokemonId = 0;
+  /**
+   * Monster id.
+   */
+  @property({ type: String })
+  pokemonId = '1';
 
   /**
    * The top headline of the overview page component.
@@ -28,7 +30,7 @@ export class MyElement extends LitElement {
   count = 0;
 
   
-  private _pokemonTask = new Task(this, {
+  private _pokemonListTask = new Task(this, {
     task: async () => {
       const getAllPokemons = 'https://pokeapi.co/api/v2/pokemon?limit=10&offset=0';
       const response = await fetch(getAllPokemons);
@@ -37,28 +39,34 @@ export class MyElement extends LitElement {
     },
     args: () => []
   });
+
+  private _pokemonTask = new Task(this, {
+    task: async ([pokemonId], {signal}) => {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`, {signal});
+      console.log(response);
+      return response.json();
+    },
+    args: () => [this.pokemonId]
+  });
   
-  // // Might be useful for filter feature
-  // private _onClick() {
-  //   const pokemonTask = this._pokemonTask;
-  //   const name = pokemonTask._value.results.map((result) => result.name);
-  //   const url = pokemonTask._value.results.map((result) => result.url);
+  // Might be useful for filter feature
+  private _onClick() {
+    console.log(this._pokemonListTask);
+    this._pokemonListTask.run();
 
-  //   console.log(pokemonTask);
-  //   console.log(name);
-  //   console.log(url);
-
-  //   pokemonTask.run();
-  // }
+    console.log(this._pokemonTask);
+    this._pokemonTask.run();
+  }
 
   render() {
     return html`
       <div>
         <h1>${this.headline}</h1>
         <!-- TODO: Add filter sidebar component -->
+        <h2>Pokemon List</h2>
         <div class="pokemon-list">
           <ul>
-            ${this._pokemonTask._value.results.map((result) => {
+            ${this._pokemonListTask._value.results.map((result) => {
               return html`
                 <a href=${result.url} target="_blank">
                   <img src=${bulbsaurImg} class="logo" alt="monster image" />
@@ -70,13 +78,28 @@ export class MyElement extends LitElement {
             })}
           </ul>
         </div>
+
+        <div class="pokemon-type">
+          <h2>Type Filter Test Area</h2>
+          <ul>
+            <p>${this._pokemonTask._value.name}</p>
+            <img src=${bulbsaurImg} class="logo" alt="monster image" />
+            ${this._pokemonTask._value.types.map((type) => {
+              return html`
+                <li>
+                  <p>${type.type.name}</p>
+                </li>
+              `
+            })}
+          </ul>
+        </div>
       </div>
       <slot></slot>
-      <!-- <div class="card">
+      <div class="card">
         <button @click=${this._onClick} part="button">
-          Pokemon list
+          Pokemon Type Test
         </button>
-      </div> -->
+      </div>
     `
   }
 
