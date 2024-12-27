@@ -1,5 +1,5 @@
 # Smartmon Product Overview Page POC
-![Smartmon product overview page demo, GIF image](./public/smartmon-demo.mov)
+![Smartmon product overview page demo, GIF image](./public/smartmon-demo-ezgif.com-video-to-gif-converter.gif)
 
 ## Prerequisite environment
 - npm: 10.8.2
